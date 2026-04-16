@@ -994,8 +994,8 @@ export default function BrowQuiz() {
           <div style={s.pathsWrap}>
             {[
               { icon: "💌", label: "DM Me on Instagram", desc: "Slide into my DMs at @browsbylys_ and tell me your result. This is the most personal way to start your brow journey.", href: "https://instagram.com/browsbylys_" },
-              { icon: "📋", label: "Submit a Booking Inquiry", desc: "Ready to move forward? Fill out my inquiry form and I'll be in touch within 24 to 48 hours to confirm your spot.", href: "https://forms.google.com" },
-              { icon: "🔔", label: "Join the Waitlist", desc: "Not ready yet or not in my current area? Get on my list and you'll be the first to know when I'm coming to you.", href: "https://forms.google.com" },
+              { icon: "📋", label: "Submit a Booking Inquiry", desc: "Ready to move forward? Fill out my inquiry form and I'll be in touch within 24 to 48 hours to confirm your spot.", href: "https://forms.gle/CVYHJWguwsRhFgFX6" },
+              { icon: "🔔", label: "Join the Waitlist", desc: "Not ready yet or not in my current area? Get on my list and you'll be the first to know when I'm coming to you.", href: "https://forms.gle/6cBeNmymquffRQxb9" },
             ].map(p => (
               <a key={p.label} href={p.href} target="_blank" rel="noreferrer" style={s.path}>
                 <span style={s.pathIcon}>{p.icon}</span>
