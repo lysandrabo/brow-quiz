@@ -158,10 +158,10 @@ const PHOTO_LIBRARY = [
     after: "https://res.cloudinary.com/do1ktljgb/image/upload/IMG_5965_tjbf1t",
     technique: "nanoCombination",
     skinTones: ["medium"],
-    conditions: [],
-    density: ["full"],
-    texture: ["coarse"],
-    tags: ["hispanic", "oily_skin", "coarse_unruly"],
+    conditions: ["acne"],
+    density: ["full", "sparse"],
+    texture: ["coarse", "medium"],
+    tags: ["hispanic", "oily_skin", "coarse_unruly", "acne"],
   },
   {
     id: "nc_hispanic_soft_good",
@@ -226,31 +226,34 @@ const PHOTO_LIBRARY = [
 function pickPhoto(technique, answers, conditions) {
   const { skinTone, hairDensity, hairTexture, skinType } = answers;
   const isMature = conditions.includes("mature") || skinType === "mature";
+  const isAcne = conditions.includes("acne");
+  const isOily = skinType === "oily";
 
   const pool = PHOTO_LIBRARY.filter(p => p.technique === technique);
   if (!pool.length) return null;
 
-  // Score each photo by how well it matches the client
   const scored = pool.map(photo => {
     let score = 0;
 
     // Skin tone match (highest priority)
-    if (skinTone && photo.skinTones.includes(skinTone)) score += 5;
+    if (skinTone && photo.skinTones.includes(skinTone)) score += 6;
 
     // Mature skin match
-    if (isMature && photo.conditions.includes("mature")) score += 4;
-    if (!isMature && photo.conditions.includes("mature")) score -= 2;
+    if (isMature && photo.conditions.includes("mature")) score += 5;
+    if (!isMature && photo.conditions.includes("mature")) score -= 3;
+
+    // Hair texture match (boosted)
+    if (hairTexture && photo.texture.includes(hairTexture)) score += 4;
 
     // Hair density match
     if (hairDensity && photo.density.includes(hairDensity)) score += 3;
 
-    // Hair texture match
-    if (hairTexture && photo.texture.includes(hairTexture)) score += 2;
+    // Acne or oily skin — prefer oily/coarse tagged photos
+    if ((isAcne || isOily) && photo.tags.some(t => t.includes("oily") || t.includes("coarse"))) score += 3;
 
     return { photo, score };
   });
 
-  // Sort by score descending, pick best match
   scored.sort((a, b) => b.score - a.score);
   return scored[0].photo;
 }
@@ -907,7 +910,6 @@ export default function BrowQuiz() {
     const r = RESULTS[result.primary];
     const r2 = RESULTS[result.secondary];
     const guidanceNote = buildGuidanceNote(result.primary, result.secondary, answers, conditions);
-    const matchedPhoto = pickPhoto(result.primary, answers, conditions);
 
     return (
       <div style={s.page}>
@@ -949,29 +951,6 @@ export default function BrowQuiz() {
             <div style={s.noteText}>"{r.note}"</div>
             <div style={s.noteSig}>Lys, @browsbylys_</div>
           </div>
-
-          {matchedPhoto && (
-            <div style={s.photoSection}>
-              <div style={s.photoLabel}>Real Client Result for {r.name}</div>
-              {matchedPhoto.before ? (
-                <div style={s.photoGrid}>
-                  <div style={s.photoSingle}>
-                    <img src={matchedPhoto.before} alt="Before" style={s.photoImg} />
-                    <div style={s.photoCaption}>Before</div>
-                  </div>
-                  <div style={s.photoSingle}>
-                    <img src={matchedPhoto.after} alt="After" style={s.photoImg} />
-                    <div style={s.photoCaption}>After</div>
-                  </div>
-                </div>
-              ) : (
-                <div style={s.photoSingle}>
-                  <img src={matchedPhoto.after} alt="After" style={{ ...s.photoImg, aspectRatio: "3/4" }} />
-                  <div style={s.photoCaption}>After</div>
-                </div>
-              )}
-            </div>
-          )}
 
           <div style={s.altBox}>
             <div style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: C.dusty, marginBottom: 10, fontFamily: "sans-serif" }}>Also a Strong Match For You</div>
